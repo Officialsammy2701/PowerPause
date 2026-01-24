@@ -1,32 +1,24 @@
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.idea/
-.vscode/
-
 # Python
-.venv/
 __pycache__/
 *.pyc
-
-# Local DB / data
-*.db
-*.sqlite
-*.sqlite3
-meter_readings.csv
+.venv/
 
 # Node
 node_modules/
 dist/
 build/
-.env
 
-backend/**/.idea
-backend/**/.venv
-frontend/.env
+# Secrets
+.env
 backend/**/.env
-__pycache__/
-*.pyc
-energy.db
+frontend/.env
+
+# Databases & generated data
+*.db
+*.sqlite
+*.sqlite3
+meter_readings.csv
+
+# IDE
+.idea/
+.vscode/
