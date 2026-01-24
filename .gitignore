@@ -22,3 +22,11 @@ node_modules/
 dist/
 build/
 .env
+
+backend/**/.idea
+backend/**/.venv
+frontend/.env
+backend/**/.env
+__pycache__/
+*.pyc
+energy.db
