@@ -1,0 +1,11 @@
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(120deg, #d8fff1, #c7f0ff);
+  align-items: flex-start; /* 🔑 important */
+}
+
+.main-content {
+  flex: 1;
+  padding: 32px;
+}

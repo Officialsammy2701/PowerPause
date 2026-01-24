@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8081";
+const API_BASE = "http://127.0.0.1:8081";
 
 export default function Dashboard() {
   const [currentPower, setCurrentPower] = useState(0);
@@ -32,8 +32,8 @@ export default function Dashboard() {
         const data = await res.json();
 
         setCurrentPower(data.current_power);
-        setProjectedBill(Number(data.projected_monthly_bill || 0));
-        setPotentialSavings(Number(data.potential_savings || 0));
+        setProjectedBill(data.projected_monthly_bill);
+        setPotentialSavings(data.potential_savings);
         setRecommendation(data.recommendation);
         setTargetStatus(data.target_status);
 
