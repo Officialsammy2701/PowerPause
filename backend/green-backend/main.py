@@ -2,8 +2,22 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
+from fastapi.responses import Response
 
 app = FastAPI(title="Green Backend")
+
+@app.get("/")
+def root():
+    return {
+        "message": "PowerPause backend is running",
+        "health": "/health",
+        "dashboard": "/api/dashboard",
+        "docs": "/docs"
+    }
+@app.get("/favicon.ico")
+def favicon():
+    return Response(status_code=204)
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -126,3 +140,4 @@ def set_target(payload: TargetIn):
     global monthly_target
     monthly_target = payload.monthly_target
     return {"ok": True, "monthly_target": monthly_target}
+
