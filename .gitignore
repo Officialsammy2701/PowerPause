@@ -22,3 +22,6 @@ meter_readings.csv
 # IDE
 .idea/
 .vscode/
+
+.vercel
+.env*.local
