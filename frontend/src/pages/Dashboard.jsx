@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8081";
 
@@ -73,15 +66,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard one-page">
-      {/* HEADER */}
-      <header className="main-header">
-        <h1>🏡 Household Energy Optimizer</h1>
-        <p>Real-time monitoring & energy savings</p>
-      </header>
-
+    <div className="dash">
       {/* CARDS */}
-      <section className="cards">
+      <section className="stats-grid">
         <div className="card">
           <h3>Current Power</h3>
           <p className="value">{currentPower.toFixed(0)} W</p>
@@ -117,34 +104,73 @@ export default function Dashboard() {
       </section>
 
       {/* MAIN ROW */}
-      <section className="dashboard-row fixed-height">
-        <aside className="dashboard-side">
-          <ul>
-            <li>🏠 Home</li>
-            <li>🎯 Target</li>
-            <li>📊 Dashboard</li>
-            <li>🔌 Devices</li>
-            <li>📈 Metrics</li>
-            <li>⭐ Feedback</li>
-          </ul>
-        </aside>
+      <section className="grid-2">
+        <div className="panel">
+          <div className="panel-head">
+            <h3>Live Power Usage</h3>
+            <p>Real-time wattage updates</p>
+          </div>
 
-        <div className="chart">
-          <h3>Live Power Usage</h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={history}>
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="power"
-                stroke="#16a34a"
-                strokeWidth={3}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="chart">
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart
+                data={history}
+                margin={{ top: 10, right: 16, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid
+                  stroke="rgba(255,255,255,0.08)"
+                  strokeDasharray="3 8"
+                />
+                <XAxis
+                  dataKey="time"
+                  tick={{ fill: "rgba(255,255,255,0.65)", fontSize: 12 }}
+                  axisLine={{ stroke: "rgba(255,255,255,0.10)" }}
+                  tickLine={{ stroke: "rgba(255,255,255,0.10)" }}
+                />
+                <YAxis
+                  tick={{ fill: "rgba(255,255,255,0.65)", fontSize: 12 }}
+                  axisLine={{ stroke: "rgba(255,255,255,0.10)" }}
+                  tickLine={{ stroke: "rgba(255,255,255,0.10)" }}
+                  width={38}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "rgba(10, 15, 25, 0.92)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: 12,
+                    boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
+                    color: "rgba(255,255,255,0.9)",
+                  }}
+                  labelStyle={{ color: "rgba(255,255,255,0.7)" }}
+                  itemStyle={{ color: "rgba(255,255,255,0.9)" }}
+                  cursor={{ stroke: "rgba(255,255,255,0.12)" }}
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="power"
+                  stroke="rgba(16,185,129,0.95)"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="panel">
+          <div className="panel-head">
+            <h3>Monthly Target</h3>
+            <p>Set a goal and track progress</p>
+            <input
+              type="number"
+              value={targetAmount}
+              onChange={(e) => updateTarget(Number(e.target.value))}
+              className="target-input"
+            />
+            <p className="target-status">{targetStatus}</p>
+          </div>
         </div>
       </section>
 

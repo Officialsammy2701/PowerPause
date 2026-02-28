@@ -107,6 +107,10 @@
   font-size: 18px;
 }
 
+.chart-warp {
+  margin-top: 12px;
+}
+
 /* ===== SMART TIP (FULL WIDTH BOTTOM) ===== */
 .tip {
   background: #22c55e;

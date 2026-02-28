@@ -1,26 +1,35 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../lib/auth";
 import "./Sidebar.css";
 
-export default function Sidebar() {
+export default function Sidebar({open, onClose}) {
+  const navigate = useNavigate();
+
+  const onLogout = () => {
+    auth.logout();
+    navigate("/", { replace: true });
+  };
+
+
   return (
-    <aside className="sidebar">
-      {/* Header */}
+    <aside className={`sidebar ${open ? "open" : ""}`}>
       <div className="sidebar-header">
-        ⚡ <span>Energy</span>
+        ⚡ <span>PowerPause</span>
+        <button className="icon-btn close-btn" onClick={onClose}>✕</button>
       </div>
 
-      {/* Navigation */}
       <nav className="sidebar-nav">
-        <a className="nav-item active">🏠 Home</a>
-        <a className="nav-item">📊 Dashboard</a>
-        <a className="nav-item">🔌 Devices</a>
-        <a className="nav-item">📈 Metrics</a>
-        <a className="nav-item">⭐ Feedback</a>
+        <button className="nav-item active" type="button">
+          📊 Dashboard
+        </button>
+        <button className="nav-item" type="button" onClick={onLogout}>
+          🚪 Logout
+        </button>
       </nav>
 
-      {/* Footer */}
       <div className="sidebar-footer">
-        🌡 12°C <span>Halifax</span>
+        <span className="muted">Energy insights</span>
       </div>
     </aside>
   );
