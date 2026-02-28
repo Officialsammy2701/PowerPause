@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8081";
 
@@ -10,6 +18,8 @@ export default function Dashboard() {
   const [potentialSavings, setPotentialSavings] = useState(0);
   const [recommendation, setRecommendation] = useState("");
   const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // 🎯 target
   const [targetAmount, setTargetAmount] = useState(0);
@@ -18,36 +28,45 @@ export default function Dashboard() {
   // ----------------------------
   // Fetch dashboard every 5s
   // ----------------------------
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/api/dashboard`);
-        const data = await res.json();
+useEffect(() => {
+  const fetchDashboard = async () => {
+    try {
+      setError("");
+      setLoading(true);
 
-        setCurrentPower(data.current_power);
-        setProjectedBill(Number(data.projected_monthly_bill || 0));
-        setPotentialSavings(Number(data.potential_savings || 0));
-        setRecommendation(data.recommendation);
-        setTargetStatus(data.target_status);
-
-        // 🔁 keep target input in sync with backend
-        setTargetAmount(data.monthly_target ?? 0);
-
-        // Chart data
-        const chartData = data.power_history.map((p) => ({
-          time: new Date(p.timestamp).toLocaleTimeString(),
-          power: p.power,
-        }));
-        setHistory(chartData);
-      } catch (err) {
-        console.error("Dashboard fetch failed:", err);
+      const res = await fetch(`${API_BASE}/api/dashboard`);
+      if (!res.ok) {
+        throw new Error(`Request failed: ${res.status}`);
       }
-    };
 
-    fetchDashboard();
-    const interval = setInterval(fetchDashboard, 5000);
-    return () => clearInterval(interval);
-  }, []);
+      const data = await res.json();
+
+      setCurrentPower(data.current_power ?? 0);
+      setProjectedBill(Number(data.projected_monthly_bill ?? 0));
+      setPotentialSavings(Number(data.potential_savings ?? 0));
+      setRecommendation(data.recommendation ?? "");
+      setTargetStatus(data.target_status ?? "");
+
+      setTargetAmount(data.monthly_target ?? 0);
+
+      const powerHistory = Array.isArray(data.power_history) ? data.power_history : [];
+      const chartData = powerHistory.map((p) => ({
+        time: new Date(p.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        power: p.power,
+      }));
+      setHistory(chartData);
+    } catch (err) {
+      console.error("Dashboard fetch failed:", err);
+      setError("Couldn’t load dashboard data. Check your connection or backend URL.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboard();
+  const interval = setInterval(fetchDashboard, 5000);
+  return () => clearInterval(interval);
+}, []);
 
   // ----------------------------
   // Send target to backend
@@ -65,41 +84,42 @@ export default function Dashboard() {
     }
   };
 
+  if (loading) return <div className="loading-state">Loading dashboard data…</div>;
+  if (error) return <div className="error-state">{error}</div>;
+
   return (
     <div className="dash">
       {/* CARDS */}
       <section className="stats-grid">
-        <div className="card">
-          <h3>Current Power</h3>
-          <p className="value">{currentPower.toFixed(0)} W</p>
+        <div className="stat-card">
+          <div className="stat-title">Current Power</div>
+          <div className="stat-value">{currentPower} W</div>
         </div>
 
-        <div className="card">
-          <h3>Projected Bill (30 days)</h3>
-          <p className="value">${projectedBill.toFixed(2)}</p>
+        <div className="stat-card">
+          <div className="stat-title">Projected Bill (30 days)</div>
+          <div className="stat-value">${projectedBill}</div>
         </div>
 
-        <div className="card">
-          <h3>Potential Savings</h3>
-          <p
-            className="value"
-            style={{
-              color: potentialSavings >= 0 ? "#16a34a" : "#dc2626",
-            }}
+        <div className="stat-card">
+          <div className="stat-title">Potential Savings</div>
+          <div
+            className="stat-value"
+            style={{ color: potentialSavings >= 0 ? "#16a34a" : "#dc2626" }}
           >
-            ${potentialSavings.toFixed(2)}
-          </p>
+            ${potentialSavings}
+          </div>
         </div>
 
-        <div className="card">
-          <h3>Monthly Target ($)</h3>
+        <div className="stat-card">
+          <div className="stat-title">Monthly Target ($)</div>
           <input
             type="number"
             value={targetAmount}
             onChange={(e) => updateTarget(Number(e.target.value))}
             className="target-input"
           />
-          <p className="target-status">{targetStatus}</p>
+          <div className="target-status">{targetStatus}</div>
         </div>
       </section>
 

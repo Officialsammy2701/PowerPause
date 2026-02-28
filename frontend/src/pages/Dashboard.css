@@ -1,122 +1,147 @@
-/* ===== Dashboard wrapper ===== */
-.dashboard {
+/* ===== Dashboard Root ===== */
+.dash {
   width: 100%;
   box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-/* ===== HEADER ===== */
-.main-header {
-  height: 80px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-bottom: 24px;
-}
-
-.main-header h1 {
-  margin: 0;
-  font-size: 26px;
-  color: #065f46;
-}
-
-.main-header p {
-  margin: 4px 0 0;
-  color: #166534;
-  font-size: 14px;
-}
-
-/* ===== METRIC CARDS ===== */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 32px;
-}
-
-.card {
-  background: white;
-  padding: 24px;
+.loading-state,
+.error-state {
+  padding: 20px;
   border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+.error-state {
+  border-color: rgba(239, 68, 68, 0.35);
 }
 
-.card h3 {
-  margin-bottom: 12px;
-  color: #166534;
+/* ===== Top Stats ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.stat-title {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  color: rgba(16, 185, 129, 0.95);
+}
+
+/* ===== Main Two-Column Grid ===== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1.35fr 0.65fr;
+  gap: 14px;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+.panel-head h3 {
+  margin: 0;
   font-size: 16px;
 }
 
-.card .value {
-  font-size: 30px;
-  font-weight: bold;
-  color: #16a34a;
+.panel-head p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
 }
 
-/* ===== MAIN ROW: SIDEBAR + CHART ===== */
-.dashboard-row {
-  display: grid;
-  grid-template-columns: 220px 1fr; /* sidebar | chart */
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-/* Side panel */
-.dashboard-side {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-}
-
-.dashboard-side ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.dashboard-side li {
-  margin-bottom: 14px;
-  font-size: 15px;
-  color: #065f46;
-  cursor: pointer;
-}
-
-/* Chart */
 .chart {
-  background: white;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-}
-
-.chart h3 {
-  margin-bottom: 16px;
-  color: #065f46;
-}
-
-.chart-placeholder {
-  height: 260px;
-  border: 2px dashed #d1d5db;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-  font-size: 18px;
-}
-
-.chart-warp {
   margin-top: 12px;
 }
 
-/* ===== SMART TIP (FULL WIDTH BOTTOM) ===== */
+/* ===== Target ===== */
+.target-input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.9);
+  outline: none;
+}
+
+.target-input:focus {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.target-status {
+  margin-top: 10px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ===== Smart Tip ===== */
 .tip {
-  background: #22c55e;
-  color: white;
-  padding: 18px;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 500;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.35),
+    rgba(56, 189, 248, 0.18)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Optional: keep it visible but not "stuck" */
+.fixed-tip {
+  position: sticky;
+  bottom: 12px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1000px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
 }

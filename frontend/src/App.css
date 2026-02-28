@@ -33,12 +33,6 @@
 .topbar-title h2 { margin: 0; font-size: 18px; }
 .topbar-title p { margin: 2px 0 0; color: rgba(255,255,255,0.62); font-size: 13px; }
 
-/* .app-layout {
-  display: flex;
-  min-height: 100vh;
-  /* background: linear-gradient(120deg, #d8fff1, #c7f0ff);
-  align-items: flex-start; 🔑 important 
-} */
 
 .main-content {
   padding: 20px;
