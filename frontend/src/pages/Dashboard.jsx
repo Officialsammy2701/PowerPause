@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import CountUp from "react-countup";
+import React, { useEffect, useRef, useState } from "react";
+import { CountUp } from "react-countup";
 import "./Dashboard.css";
 import {
   ResponsiveContainer,
@@ -52,6 +52,7 @@ export default function Dashboard() {
         }
 
         const data = await res.json();
+        const didInitDraft = useRef(false);
 
         setCurrentPower(data.current_power ?? 0);
         setProjectedBill(Number(data.projected_monthly_bill ?? 0));
@@ -60,8 +61,9 @@ export default function Dashboard() {
         setTargetStatus(data.target_status ?? "");
 
         setTargetAmount(data.monthly_target ?? 0);
-        if (loading) {
+        if (!didInitDraft.current) {
           setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
+          didInitDraft.current = true;
         }
 
         const powerHistory = Array.isArray(data.power_history)
@@ -181,7 +183,7 @@ export default function Dashboard() {
         <div className="stat-card">
           <div className="stat-title">
             <FontAwesomeIcon
-              icon={faBolt}
+              icon={faDollarSign}
               className={`stat-icon ${budgetTone}`}
             />
             Estimated Monthly Cost
