@@ -21,6 +21,7 @@ import {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8081";
 
 export default function Dashboard() {
+  const didInitDraft = useRef(false);
   const [currentPower, setCurrentPower] = useState(0);
   const [projectedBill, setProjectedBill] = useState(0);
   const [potentialSavings, setPotentialSavings] = useState(0);
@@ -52,7 +53,6 @@ export default function Dashboard() {
         }
 
         const data = await res.json();
-        const didInitDraft = useRef(false);
 
         setCurrentPower(data.current_power ?? 0);
         setProjectedBill(Number(data.projected_monthly_bill ?? 0));
@@ -61,10 +61,6 @@ export default function Dashboard() {
         setTargetStatus(data.target_status ?? "");
 
         setTargetAmount(data.monthly_target ?? 0);
-        if (!didInitDraft.current) {
-          setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
-          didInitDraft.current = true;
-        }
 
         const powerHistory = Array.isArray(data.power_history)
           ? data.power_history
@@ -84,6 +80,10 @@ export default function Dashboard() {
         );
       } finally {
         setLoading(false);
+      }
+      if (!didInitDraft.current) {
+        setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
+        didInitDraft.current = true;
       }
     };
 
