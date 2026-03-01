@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CountUp } from "react-countup";
+import CountUp from "react-countup";
 import "./Dashboard.css";
 import {
   ResponsiveContainer,
@@ -62,6 +62,11 @@ export default function Dashboard() {
 
         setTargetAmount(data.monthly_target ?? 0);
 
+        if (!didInitDraft.current) {
+          setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
+          didInitDraft.current = true;
+        }
+
         const powerHistory = Array.isArray(data.power_history)
           ? data.power_history
           : [];
@@ -80,10 +85,6 @@ export default function Dashboard() {
         );
       } finally {
         setLoading(false);
-      }
-      if (!didInitDraft.current) {
-        setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
-        didInitDraft.current = true;
       }
     };
 
