@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import CountUp from "react-countup";
 import "./Dashboard.css";
 import {
   ResponsiveContainer,
@@ -9,6 +10,13 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBolt,
+  faDollarSign,
+  faLeaf,
+  faBullseye
+} from "@fortawesome/free-solid-svg-icons";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8081";
 
@@ -52,7 +60,9 @@ useEffect(() => {
       setTargetStatus(data.target_status ?? "");
 
       setTargetAmount(data.monthly_target ?? 0);
-      setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
+      if (loading) {
+        setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
+      }
 
       const powerHistory = Array.isArray(data.power_history) ? data.power_history : [];
       const chartData = powerHistory.map((p) => ({
@@ -95,15 +105,15 @@ if (target > 0) {
   const remaining = target - projected;      // how much budget left
 
   if (ratio > 1) {
-    budgetLabel = "Over Budget";
+    budgetLabel = "Budget Exceeded";
     budgetTone = "danger";
     budgetDetail = `Over by $${Math.abs(remaining).toFixed(2)}.`;
   } else if (ratio >= 0.9) {
-    budgetLabel = "Close to Limit";
+    budgetLabel = "Approaching Budget";
     budgetTone = "warn";
     budgetDetail = `$${remaining.toFixed(2)} left before hitting your target.`;
   } else {
-    budgetLabel = "On Track";
+    budgetLabel = "Energy Efficient";
     budgetTone = "good";
     budgetDetail = `$${remaining.toFixed(2)} remaining this month.`;
   }
@@ -152,20 +162,21 @@ if (target > 0) {
       {/* CARDS */}
       <section className="stats-grid">
         <div className="stat-card">
-          <div className="stat-title">Current Power</div>
+          <div className="stat-title"><FontAwesomeIcon icon={faBolt} className={`stat-icon ${budgetTone}`} />Current Energy Draw</div>
           <div className="stat-value">{currentPower} W</div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-title">Projected Bill (30 days)</div>
-          <div className="stat-value">${Number(projectedBill).toFixed(2)}</div>
+          <div className="stat-title"><FontAwesomeIcon icon={faBolt} className={`stat-icon ${budgetTone}`} />Estimated Monthly Cost</div>
+          <div className="stat-value"><CountUp end={Number(projectedBill)}duration={0.6} decimals={2}/>
+          </div>
           <div className={`pill ${budgetTone}`}>
             {budgetLabel}
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-title">Potential Savings</div>
+          <div className="stat-title"><FontAwesomeIcon icon={faLeaf} className={`stat-icon ${budgetTone}`} />Potential Savings</div>
           <div
             className="stat-value"
             style={{ color: potentialSavings >= 0 ? "#16a34a" : "#dc2626" }}
@@ -175,7 +186,7 @@ if (target > 0) {
         </div>
 
         <div className="stat-card">
-          <div className="stat-title">Monthly Target ($)</div>
+          <div className="stat-title"><FontAwesomeIcon icon={faBullseye} className={`stat-icon ${budgetTone}`} />Energy Budget ($)</div>
           <div className="stat-value">${Number(targetAmount).toFixed(2)}</div>
           <div className="target-status">{targetAmount > 0 ? "Target set ✓" : "No target set"}</div>
         </div>
@@ -185,7 +196,7 @@ if (target > 0) {
       <section className="grid-2">
         <div className="panel">
           <div className="panel-head">
-            <h3>Live Power Usage</h3>
+            <h3>Current Energy Draw</h3>
             <p>Real-time wattage updates</p>
           </div>
 
@@ -239,7 +250,7 @@ if (target > 0) {
 
         <div className="panel">
           <div className="panel-head">
-            <h3>Monthly Target ($)</h3>
+            <h3>Energy Budget ($)</h3>
             <p>Set a goal and track progress</p>
             <input
               type="text"
@@ -297,8 +308,8 @@ if (target > 0) {
 
       {/* SMART TIP */}
       <section className="tip fixed-tip">
-        💡 <strong>Smart Tip:</strong>{" "}
-        {recommendation || "Loading recommendation…"}
+        <strong>PowerPause Insight</strong>{" "}
+        {recommendation || "Analyzing household patterns…"}
       </section>
     </div>
   );
