@@ -25,6 +25,10 @@ export default function Dashboard() {
   const [targetAmount, setTargetAmount] = useState(0);
   const [targetStatus, setTargetStatus] = useState("");
 
+  const [targetDraft, setTargetDraft] = useState("0.00");       // what user is typing
+  const [isSavingTarget, setIsSavingTarget] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");              // "Saved", "Failed", etc.
+
   // ----------------------------
   // Fetch dashboard every 5s
   // ----------------------------
@@ -48,6 +52,7 @@ useEffect(() => {
       setTargetStatus(data.target_status ?? "");
 
       setTargetAmount(data.monthly_target ?? 0);
+      setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
 
       const powerHistory = Array.isArray(data.power_history) ? data.power_history : [];
       const chartData = powerHistory.map((p) => ({
@@ -68,19 +73,74 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, []);
 
+const target = Number(targetAmount);
+const projected = Number(projectedBill);
+
+const progressPct =
+  target > 0 ? Math.min(100, Math.max(0, (projected / target) * 100)) : 0;
+
+const progressLabel =
+  target > 0
+    ? `${progressPct.toFixed(0)}% of target used`
+    : "Set a target to track progress";
+
+let budgetLabel = "No target set";
+let budgetTone = "neutral"; // for CSS class
+let budgetDetail = "Set a monthly target to track your spending.";
+
+
+
+if (target > 0) {
+  const ratio = projected / target;          // e.g. 0.72 = 72% of target
+  const remaining = target - projected;      // how much budget left
+
+  if (ratio > 1) {
+    budgetLabel = "Over Budget";
+    budgetTone = "danger";
+    budgetDetail = `Over by $${Math.abs(remaining).toFixed(2)}.`;
+  } else if (ratio >= 0.9) {
+    budgetLabel = "Close to Limit";
+    budgetTone = "warn";
+    budgetDetail = `$${remaining.toFixed(2)} left before hitting your target.`;
+  } else {
+    budgetLabel = "On Track";
+    budgetTone = "good";
+    budgetDetail = `$${remaining.toFixed(2)} remaining this month.`;
+  }
+}
+
   // ----------------------------
   // Send target to backend
   // ----------------------------
-  const updateTarget = async (value) => {
-    setTargetAmount(value);
+  const saveTarget = async () => {
+    setSaveMsg("");
+    setIsSavingTarget(true);
+
+    const numericTarget = Number(targetDraft);
+
     try {
-      await fetch(`${API_BASE}/api/target`, {
+      const res = await fetch(`${API_BASE}/api/target`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ monthly_target: value }),
+        body: JSON.stringify({ monthly_target: numericTarget }),
       });
+
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+
+      // reflect locally (optimistic)
+      setTargetAmount(numericTarget);
+      setSaveMsg("Saved ✓");
+      // setTargetStatus("Target set ✓");
+      setTargetDraft("0.00");
+
+      // clear the message after a bit
+      setTimeout(() => setSaveMsg(""), 2000);
+      // setTimeout(() => setTargetStatus(""), 2000);
     } catch (err) {
       console.error("Target update failed:", err);
+      setSaveMsg("Save failed. Try again.");
+    } finally {
+      setIsSavingTarget(false);
     }
   };
 
@@ -98,7 +158,10 @@ useEffect(() => {
 
         <div className="stat-card">
           <div className="stat-title">Projected Bill (30 days)</div>
-          <div className="stat-value">${projectedBill}</div>
+          <div className="stat-value">${Number(projectedBill).toFixed(2)}</div>
+          <div className={`pill ${budgetTone}`}>
+            {budgetLabel}
+          </div>
         </div>
 
         <div className="stat-card">
@@ -113,13 +176,8 @@ useEffect(() => {
 
         <div className="stat-card">
           <div className="stat-title">Monthly Target ($)</div>
-          <input
-            type="number"
-            value={targetAmount}
-            onChange={(e) => updateTarget(Number(e.target.value))}
-            className="target-input"
-          />
-          <div className="target-status">{targetStatus}</div>
+          <div className="stat-value">${Number(targetAmount).toFixed(2)}</div>
+          <div className="target-status">{targetAmount > 0 ? "Target set ✓" : "No target set"}</div>
         </div>
       </section>
 
@@ -181,15 +239,58 @@ useEffect(() => {
 
         <div className="panel">
           <div className="panel-head">
-            <h3>Monthly Target</h3>
+            <h3>Monthly Target ($)</h3>
             <p>Set a goal and track progress</p>
             <input
-              type="number"
-              value={targetAmount}
-              onChange={(e) => updateTarget(Number(e.target.value))}
+              type="text"
+              inputMode="decimal"
+              value={targetDraft}
+              onChange={(e) => {
+                // allow only numbers and decimal point
+                const next = e.target.value.replace(/[^0-9.]/g, "");
+                const parts = next.split(".");
+                const cleaned = parts.length <= 2 ? (parts[1] ? `${parts[0]}.${parts[1].slice(0, 2)}` :   parts[0]) : parts[0];
+                setTargetDraft(cleaned);
+              }}
+              onBlur={() => {
+                const n = Number(targetDraft);
+                setTargetDraft(Number.isFinite(n) ? n.toFixed(2) : "0.00");
+              }}
               className="target-input"
             />
-            <p className="target-status">{targetStatus}</p>
+
+            <button
+              className="save-btn"
+              onClick={saveTarget}
+              disabled={isSavingTarget || Number(targetDraft) === Number(targetAmount)}
+            >
+              {isSavingTarget ? "Saving..." : "Save Target"}
+            </button>
+
+            <div className="save-msg">{saveMsg}</div>
+
+            <div className={`budget-block ${budgetTone}`}>
+              <div className="budget-title">{budgetLabel}</div>
+              <div className="budget-detail">{budgetDetail}</div>
+            </div>
+
+            <div className="progress">
+              <div className="progress-head">
+                <span className="progress-label">{progressLabel}</span>
+                {target > 0 && (
+                  <span className="progress-meta">
+                    ${projected.toFixed(2)} / ${target.toFixed(2)}
+                  </span>
+                )}
+              </div>
+
+              <div className="progress-track" aria-label="Monthly target progress">
+                <div
+                  className={`progress-fill ${budgetTone}`}
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
