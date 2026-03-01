@@ -15,7 +15,7 @@ import {
   faBolt,
   faDollarSign,
   faLeaf,
-  faBullseye
+  faBullseye,
 } from "@fortawesome/free-solid-svg-icons";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8081";
@@ -33,91 +33,96 @@ export default function Dashboard() {
   const [targetAmount, setTargetAmount] = useState(0);
   const [targetStatus, setTargetStatus] = useState("");
 
-  const [targetDraft, setTargetDraft] = useState("0.00");       // what user is typing
+  const [targetDraft, setTargetDraft] = useState("0.00"); // what user is typing
   const [isSavingTarget, setIsSavingTarget] = useState(false);
-  const [saveMsg, setSaveMsg] = useState("");              // "Saved", "Failed", etc.
+  const [saveMsg, setSaveMsg] = useState(""); // "Saved", "Failed", etc.
 
   // ----------------------------
   // Fetch dashboard every 5s
   // ----------------------------
-useEffect(() => {
-  const fetchDashboard = async () => {
-    try {
-      setError("");
-      setLoading(true);
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        setError("");
+        setLoading(true);
 
-      const res = await fetch(`${API_BASE}/api/dashboard`);
-      if (!res.ok) {
-        throw new Error(`Request failed: ${res.status}`);
+        const res = await fetch(`${API_BASE}/api/dashboard`);
+        if (!res.ok) {
+          throw new Error(`Request failed: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        setCurrentPower(data.current_power ?? 0);
+        setProjectedBill(Number(data.projected_monthly_bill ?? 0));
+        setPotentialSavings(Number(data.potential_savings ?? 0));
+        setRecommendation(data.recommendation ?? "");
+        setTargetStatus(data.target_status ?? "");
+
+        setTargetAmount(data.monthly_target ?? 0);
+        if (loading) {
+          setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
+        }
+
+        const powerHistory = Array.isArray(data.power_history)
+          ? data.power_history
+          : [];
+        const chartData = powerHistory.map((p) => ({
+          time: new Date(p.timestamp).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          power: p.power,
+        }));
+        setHistory(chartData);
+      } catch (err) {
+        console.error("Dashboard fetch failed:", err);
+        setError(
+          "Couldn’t load dashboard data. Check your connection or backend URL.",
+        );
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const data = await res.json();
+    fetchDashboard();
+    const interval = setInterval(fetchDashboard, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
-      setCurrentPower(data.current_power ?? 0);
-      setProjectedBill(Number(data.projected_monthly_bill ?? 0));
-      setPotentialSavings(Number(data.potential_savings ?? 0));
-      setRecommendation(data.recommendation ?? "");
-      setTargetStatus(data.target_status ?? "");
+  const target = Number(targetAmount);
+  const projected = Number(projectedBill);
 
-      setTargetAmount(data.monthly_target ?? 0);
-      if (loading) {
-        setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
-      }
+  const progressPct =
+    target > 0 ? Math.min(100, Math.max(0, (projected / target) * 100)) : 0;
 
-      const powerHistory = Array.isArray(data.power_history) ? data.power_history : [];
-      const chartData = powerHistory.map((p) => ({
-        time: new Date(p.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        power: p.power,
-      }));
-      setHistory(chartData);
-    } catch (err) {
-      console.error("Dashboard fetch failed:", err);
-      setError("Couldn’t load dashboard data. Check your connection or backend URL.");
-    } finally {
-      setLoading(false);
+  const progressLabel =
+    target > 0
+      ? `${progressPct.toFixed(0)}% of target used`
+      : "Set a target to track progress";
+
+  let budgetLabel = "No target set";
+  let budgetTone = "neutral"; // for CSS class
+  let budgetDetail = "Set a monthly target to track your spending.";
+
+  if (target > 0) {
+    const ratio = projected / target; // e.g. 0.72 = 72% of target
+    const remaining = target - projected; // how much budget left
+
+    if (ratio > 1) {
+      budgetLabel = "Budget Exceeded";
+      budgetTone = "danger";
+      budgetDetail = `Over by $${Math.abs(remaining).toFixed(2)}.`;
+    } else if (ratio >= 0.9) {
+      budgetLabel = "Approaching Budget";
+      budgetTone = "warn";
+      budgetDetail = `$${remaining.toFixed(2)} left before hitting your target.`;
+    } else {
+      budgetLabel = "Energy Efficient";
+      budgetTone = "good";
+      budgetDetail = `$${remaining.toFixed(2)} remaining this month.`;
     }
-  };
-
-  fetchDashboard();
-  const interval = setInterval(fetchDashboard, 5000);
-  return () => clearInterval(interval);
-}, []);
-
-const target = Number(targetAmount);
-const projected = Number(projectedBill);
-
-const progressPct =
-  target > 0 ? Math.min(100, Math.max(0, (projected / target) * 100)) : 0;
-
-const progressLabel =
-  target > 0
-    ? `${progressPct.toFixed(0)}% of target used`
-    : "Set a target to track progress";
-
-let budgetLabel = "No target set";
-let budgetTone = "neutral"; // for CSS class
-let budgetDetail = "Set a monthly target to track your spending.";
-
-
-
-if (target > 0) {
-  const ratio = projected / target;          // e.g. 0.72 = 72% of target
-  const remaining = target - projected;      // how much budget left
-
-  if (ratio > 1) {
-    budgetLabel = "Budget Exceeded";
-    budgetTone = "danger";
-    budgetDetail = `Over by $${Math.abs(remaining).toFixed(2)}.`;
-  } else if (ratio >= 0.9) {
-    budgetLabel = "Approaching Budget";
-    budgetTone = "warn";
-    budgetDetail = `$${remaining.toFixed(2)} left before hitting your target.`;
-  } else {
-    budgetLabel = "Energy Efficient";
-    budgetTone = "good";
-    budgetDetail = `$${remaining.toFixed(2)} remaining this month.`;
   }
-}
 
   // ----------------------------
   // Send target to backend
@@ -154,7 +159,8 @@ if (target > 0) {
     }
   };
 
-  if (loading) return <div className="loading-state">Loading dashboard data…</div>;
+  if (loading)
+    return <div className="loading-state">Loading dashboard data…</div>;
   if (error) return <div className="error-state">{error}</div>;
 
   return (
@@ -162,21 +168,38 @@ if (target > 0) {
       {/* CARDS */}
       <section className="stats-grid">
         <div className="stat-card">
-          <div className="stat-title"><FontAwesomeIcon icon={faBolt} className={`stat-icon ${budgetTone}`} />Current Energy Draw</div>
+          <div className="stat-title">
+            <FontAwesomeIcon
+              icon={faBolt}
+              className={`stat-icon ${budgetTone}`}
+            />
+            Current Energy Draw
+          </div>
           <div className="stat-value">{currentPower} W</div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-title"><FontAwesomeIcon icon={faBolt} className={`stat-icon ${budgetTone}`} />Estimated Monthly Cost</div>
-          <div className="stat-value"><CountUp end={Number(projectedBill)}duration={0.6} decimals={2}/>
+          <div className="stat-title">
+            <FontAwesomeIcon
+              icon={faBolt}
+              className={`stat-icon ${budgetTone}`}
+            />
+            Estimated Monthly Cost
           </div>
-          <div className={`pill ${budgetTone}`}>
-            {budgetLabel}
+          <div className="stat-value">
+            <CountUp end={Number(projectedBill)} duration={0.6} decimals={2} />
           </div>
+          <div className={`pill ${budgetTone}`}>{budgetLabel}</div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-title"><FontAwesomeIcon icon={faLeaf} className={`stat-icon ${budgetTone}`} />Potential Savings</div>
+          <div className="stat-title">
+            <FontAwesomeIcon
+              icon={faLeaf}
+              className={`stat-icon ${budgetTone}`}
+            />
+            Potential Savings
+          </div>
           <div
             className="stat-value"
             style={{ color: potentialSavings >= 0 ? "#16a34a" : "#dc2626" }}
@@ -186,9 +209,17 @@ if (target > 0) {
         </div>
 
         <div className="stat-card">
-          <div className="stat-title"><FontAwesomeIcon icon={faBullseye} className={`stat-icon ${budgetTone}`} />Energy Budget ($)</div>
+          <div className="stat-title">
+            <FontAwesomeIcon
+              icon={faBullseye}
+              className={`stat-icon ${budgetTone}`}
+            />
+            Energy Budget ($)
+          </div>
           <div className="stat-value">${Number(targetAmount).toFixed(2)}</div>
-          <div className="target-status">{targetAmount > 0 ? "Target set ✓" : "No target set"}</div>
+          <div className="target-status">
+            {targetAmount > 0 ? "Target set ✓" : "No target set"}
+          </div>
         </div>
       </section>
 
@@ -260,7 +291,12 @@ if (target > 0) {
                 // allow only numbers and decimal point
                 const next = e.target.value.replace(/[^0-9.]/g, "");
                 const parts = next.split(".");
-                const cleaned = parts.length <= 2 ? (parts[1] ? `${parts[0]}.${parts[1].slice(0, 2)}` :   parts[0]) : parts[0];
+                const cleaned =
+                  parts.length <= 2
+                    ? parts[1]
+                      ? `${parts[0]}.${parts[1].slice(0, 2)}`
+                      : parts[0]
+                    : parts[0];
                 setTargetDraft(cleaned);
               }}
               onBlur={() => {
@@ -273,7 +309,9 @@ if (target > 0) {
             <button
               className="save-btn"
               onClick={saveTarget}
-              disabled={isSavingTarget || Number(targetDraft) === Number(targetAmount)}
+              disabled={
+                isSavingTarget || Number(targetDraft) === Number(targetAmount)
+              }
             >
               {isSavingTarget ? "Saving..." : "Save Target"}
             </button>
@@ -295,7 +333,10 @@ if (target > 0) {
                 )}
               </div>
 
-              <div className="progress-track" aria-label="Monthly target progress">
+              <div
+                className="progress-track"
+                aria-label="Monthly target progress"
+              >
                 <div
                   className={`progress-fill ${budgetTone}`}
                   style={{ width: `${progressPct}%` }}
