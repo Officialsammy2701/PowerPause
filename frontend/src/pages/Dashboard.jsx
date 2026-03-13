@@ -63,6 +63,7 @@ export default function Dashboard() {
         setTargetAmount(data.monthly_target ?? 0);
 
         if (!didInitDraft.current) {
+          setLoading(true);
           setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
           didInitDraft.current = true;
         }
@@ -149,7 +150,7 @@ export default function Dashboard() {
       setTargetAmount(numericTarget);
       setSaveMsg("Saved ✓");
       // setTargetStatus("Target set ✓");
-      setTargetDraft("0.00");
+      setTargetDraft(numericTarget.toFixed(2));
 
       // clear the message after a bit
       setTimeout(() => setSaveMsg(""), 2000);
@@ -190,7 +191,12 @@ export default function Dashboard() {
             Estimated Monthly Cost
           </div>
           <div className="stat-value">
-            <CountUp end={Number(projectedBill)} duration={0.6} decimals={2} />
+            <CountUp
+              prefix="$"
+              end={Number(projectedBill)}
+              duration={0.6}
+              decimals={2}
+            />
           </div>
           <div className={`pill ${budgetTone}`}>{budgetLabel}</div>
         </div>
@@ -207,7 +213,7 @@ export default function Dashboard() {
             className="stat-value"
             style={{ color: potentialSavings >= 0 ? "#16a34a" : "#dc2626" }}
           >
-            ${potentialSavings}
+            ${Number(potentialSavings).toFixed(2)}
           </div>
         </div>
 
@@ -235,6 +241,9 @@ export default function Dashboard() {
           </div>
 
           <div className="chart">
+            {history.length === 0 && (
+              <p className="no-data">No history available yet.</p>
+            )}
             <ResponsiveContainer width="100%" height={280}>
               <LineChart
                 data={history}

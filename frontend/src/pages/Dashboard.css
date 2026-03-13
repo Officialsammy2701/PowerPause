@@ -105,6 +105,13 @@
   margin-top: 12px;
 }
 
+.no-data {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.875rem;
+  padding: 2rem 0;
+}
+
 /* ===== Target ===== */
 .target-input {
   width: 100%;
