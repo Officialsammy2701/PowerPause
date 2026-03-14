@@ -64,9 +64,10 @@ app = FastAPI(title="PowerPause Backend", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://powerpause.vercel.app"],
-    allow_methods=["https://powerpause.vercel.app"],
-    allow_headers=["https://powerpause.vercel.app"],
+    allow_origins=["https://powerpause.vercel.app",
+        "http://localhost:5173",],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 RATE_PER_KWH = 0.18
