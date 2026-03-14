@@ -292,38 +292,44 @@ export default function Dashboard() {
           <div className="panel-head">
             <h3>Energy Budget ($)</h3>
             <p>Set a goal and track progress</p>
-            <input
-              type="text"
-              inputMode="decimal"
-              value={targetDraft}
-              onChange={(e) => {
-                // allow only numbers and decimal point
-                const next = e.target.value.replace(/[^0-9.]/g, "");
-                const parts = next.split(".");
-                const cleaned =
-                  parts.length <= 2
-                    ? parts[1]
-                      ? `${parts[0]}.${parts[1].slice(0, 2)}`
-                      : parts[0]
-                    : parts[0];
-                setTargetDraft(cleaned);
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveTarget();
               }}
-              onBlur={() => {
-                const n = Number(targetDraft);
-                setTargetDraft(Number.isFinite(n) ? n.toFixed(2) : "0.00");
-              }}
-              className="target-input"
-            />
-
-            <button
-              className="save-btn"
-              onClick={saveTarget}
-              disabled={
-                isSavingTarget || Number(targetDraft) === Number(targetAmount)
-              }
             >
-              {isSavingTarget ? "Saving..." : "Save Target"}
-            </button>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={targetDraft}
+                onChange={(e) => {
+                  const next = e.target.value.replace(/[^0-9.]/g, "");
+                  const parts = next.split(".");
+                  const cleaned =
+                    parts.length <= 2
+                      ? parts[1]
+                        ? `${parts[0]}.${parts[1].slice(0, 2)}`
+                        : parts[0]
+                      : parts[0];
+                  setTargetDraft(cleaned);
+                }}
+                onBlur={() => {
+                  const n = Number(targetDraft);
+                  setTargetDraft(Number.isFinite(n) ? n.toFixed(2) : "0.00");
+                }}
+                className="target-input"
+              />
+
+              <button
+                type="submit"
+                className="save-btn"
+                disabled={
+                  isSavingTarget || Number(targetDraft) === Number(targetAmount)
+                }
+              >
+                {isSavingTarget ? "Saving..." : "Save Target"}
+              </button>
+            </form>
 
             <div className="save-msg">{saveMsg}</div>
 
