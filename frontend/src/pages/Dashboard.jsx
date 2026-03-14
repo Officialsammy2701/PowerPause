@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import CountUp from "react-countup";
+import { library } from "@fortawesome/fontawesome-svg-core";
 import "./Dashboard.css";
 import {
   ResponsiveContainer,
@@ -18,7 +18,9 @@ import {
   faBullseye,
 } from "@fortawesome/free-solid-svg-icons";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8081";
+library.add(faBolt, faDollarSign, faLeaf, faBullseye);
+
+import { API_BASE } from "../lib/api";
 
 export default function Dashboard() {
   const didInitDraft = useRef(false);
@@ -45,7 +47,6 @@ export default function Dashboard() {
     const fetchDashboard = async () => {
       try {
         setError("");
-        setLoading(true);
 
         const res = await fetch(`${API_BASE}/api/dashboard`);
         if (!res.ok) {
@@ -63,7 +64,6 @@ export default function Dashboard() {
         setTargetAmount(data.monthly_target ?? 0);
 
         if (!didInitDraft.current) {
-          setLoading(true);
           setTargetDraft(Number(data.monthly_target ?? 0).toFixed(2));
           didInitDraft.current = true;
         }
@@ -75,10 +75,11 @@ export default function Dashboard() {
           time: new Date(p.timestamp).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
+            second: "2-digit",
           }),
           power: p.power,
         }));
-        setHistory(chartData);
+        setHistory(chartData.slice(-20));
       } catch (err) {
         console.error("Dashboard fetch failed:", err);
         setError(
@@ -163,7 +164,7 @@ export default function Dashboard() {
     }
   };
 
-  if (loading)
+  if (loading && history.length === 0)
     return <div className="loading-state">Loading dashboard data…</div>;
   if (error) return <div className="error-state">{error}</div>;
 
@@ -190,14 +191,7 @@ export default function Dashboard() {
             />
             Estimated Monthly Cost
           </div>
-          <div className="stat-value">
-            <CountUp
-              prefix="$"
-              end={Number(projectedBill)}
-              duration={0.6}
-              decimals={2}
-            />
-          </div>
+          <div className="stat-value">${Number(projectedBill).toFixed(2)}</div>
           <div className={`pill ${budgetTone}`}>{budgetLabel}</div>
         </div>
 
@@ -279,12 +273,15 @@ export default function Dashboard() {
                 />
 
                 <Line
-                  type="monotone"
+                  type="monotoneX"
                   dataKey="power"
                   stroke="rgba(16,185,129,0.95)"
-                  strokeWidth={3}
+                  strokeWidth={2.5}
                   dot={false}
                   activeDot={{ r: 4 }}
+                  isAnimationActive={true}
+                  animationDuration={300}
+                  animationEasing="ease-out"
                 />
               </LineChart>
             </ResponsiveContainer>

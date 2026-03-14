@@ -99,7 +99,7 @@ export default function Login() {
             <button
               type="button"
               className="link-btn"
-              onClick={() => alert("Hook this up later (Reset Password).")}
+              disabled
             >
               Forgot password?
             </button>

@@ -1,36 +1,56 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChartBar,
+  faChartLine,
+  faRightFromBracket,
+  faBolt,
+} from "@fortawesome/free-solid-svg-icons";
 import { auth } from "../lib/auth";
 import "./Sidebar.css";
 
-export default function Sidebar({open, onClose}) {
+export default function Sidebar({ open, onClose }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const onLogout = () => {
     auth.logout();
     navigate("/", { replace: true });
   };
 
-
   return (
     <aside className={`sidebar ${open ? "open" : ""}`}>
-      <div className="sidebar-header">
-        ⚡ <span>PowerPause</span>
-        <button className="icon-btn close-btn" onClick={onClose}>✕</button>
+      <div>
+        <div className="sidebar-header">
+          <FontAwesomeIcon icon={faBolt} style={{ color: "#10b981" }} />
+          <span>PowerPause</span>
+          <button className="close-btn" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+
+        <nav className="sidebar-nav">
+          <button
+            className={`nav-item ${location.pathname === "/dashboard" ? "active" : ""}`}
+            onClick={() => navigate("/dashboard")}
+          >
+            <FontAwesomeIcon icon={faChartBar} /> Dashboard
+          </button>
+          <button
+            className={`nav-item ${location.pathname === "/analytics" ? "active" : ""}`}
+            onClick={() => navigate("/analytics")}
+          >
+            <FontAwesomeIcon icon={faChartLine} /> Analytics
+          </button>
+          <button className="nav-item logout" type="button" onClick={onLogout}>
+            <FontAwesomeIcon icon={faRightFromBracket} />
+            Logout
+          </button>
+        </nav>
       </div>
 
-      <nav className="sidebar-nav">
-        <button className="nav-item active" type="button">
-          📊 Dashboard
-        </button>
-        <button className="nav-item" type="button" onClick={onLogout}>
-          🚪 Logout
-        </button>
-      </nav>
-
-      <div className="sidebar-footer">
-        <span className="muted">Energy insights</span>
-      </div>
+      <div className="sidebar-footer">Energy insights</div>
     </aside>
   );
 }
