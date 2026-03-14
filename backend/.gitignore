@@ -1,0 +1,34 @@
+# ── Environment 
+.env
+.env.local
+.env.*.local
+
+# ── Python bytecode 
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ── Virtual environments 
+.venv/
+venv/
+env/
+
+# ── Database files 
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Data files (raw / generated) 
+*.csv
+*.json.bak
+data/
+
+# ── IDE 
+.idea/
+*.iml
+.vscode/
+
+# ── OS 
+.DS_Store
+Thumbs.db

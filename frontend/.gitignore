@@ -1,26 +1,27 @@
-# Logs
-logs
-*.log
+# ── Dependencies 
+node_modules/
+
+# ── Build output 
+dist/
+build/
+
+# ── Environment 
+.env
+.env.local
+.env.*.local
+src/.env
+
+# ── Vite cache 
+.vite/
+
+# ── Vercel 
+.vercel/
+
+# ── OS 
+.DS_Store
+Thumbs.db
+
+# ── Logs 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-.vercel
