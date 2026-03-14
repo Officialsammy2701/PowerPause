@@ -6,6 +6,19 @@ PowerPause is a full-stack energy monitoring dashboard built with FastAPI and Re
 
 ---
 
+## Screenshots
+
+### Login
+![Login](screenshots/login.png)
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Analytics
+![Analytics](screenshots/analytics.png)
+
+---
+
 ## Project Structure
 
 ```
