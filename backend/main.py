@@ -5,6 +5,12 @@ from typing import List
 from fastapi.responses import Response
 
 app = FastAPI(title="Green Backend")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def root():
@@ -19,12 +25,6 @@ def favicon():
     return Response(status_code=204)
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 RATE_PER_KWH = 0.18
 MAX_POINTS = 60  # ~5 minutes (5s interval)
@@ -97,7 +97,8 @@ def compute_dashboard():
         target_status = "No target set"
 
     # 🔁 Rotate recommendation every call
-    recommendation = RECOMMENDATIONS[rec_index % len(RECOMMENDATIONS)]
+    current_rec_index = (rec_index // 12) % len(RECOMMENDATIONS)
+    recommendation = RECOMMENDATIONS[current_rec_index]
     rec_index += 1
 
     return {
