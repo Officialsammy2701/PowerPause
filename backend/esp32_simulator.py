@@ -4,7 +4,7 @@ import time
 import random
 from datetime import datetime, timezone
 
-API_URL = "https://powerpause.onrender.com/api/readings"
+API_URL = os.getenv("https://powerpause.onrender.com/api/readings")
 # API_URL = "http://127.0.0.1:8081/api/readings"  # local
 
 POWER_VALUES = [120, 240, 360, 480, 600, 720, 960, 1080]
