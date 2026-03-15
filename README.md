@@ -147,6 +147,13 @@ Make sure the backend is running first. The simulator sends a reading every 5 se
 
 ---
 
+## Contributors
+
+- [Ismail Akande](https://github.com/officialsammy_2701)
+- [Rama Tadesse](https://github.com/alldrea7)
+
+---
+
 ## License
 
 MIT
