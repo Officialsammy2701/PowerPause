@@ -88,14 +88,19 @@ The frontend will be available at `http://localhost:5173`.
 
 ### ESP32 Simulator
 
-To simulate power readings without hardware:
+To simulate power readings without hardware and since the simulator requires a paid hosted worker, run it locally to stream live data to the dashboard:
 
 ```bash
 cd backend
 python esp32_simulator.py
 ```
 
-Make sure the backend is running first. The simulator sends a reading every 5 seconds.
+Make sure your `backend/.env` has:
+```
+API_URL=https://powerpause.onrender.com/api/readings
+```
+
+The simulator sends a power reading every 5 seconds to the deployed backend. Keep it running in a terminal while using the dashboard to see live data.
 
 ---
 
